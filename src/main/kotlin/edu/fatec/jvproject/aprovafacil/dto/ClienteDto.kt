@@ -6,6 +6,7 @@ import edu.fatec.jvproject.aprovafacil.model.PerfilFinanceiro
 import java.time.LocalDate
 
 data class ClienteDto(
+    val id: Long? = null,
     val nome: String,
     val cpf: String,
     val telefone: String,
