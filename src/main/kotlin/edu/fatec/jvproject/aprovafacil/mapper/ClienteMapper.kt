@@ -7,8 +7,9 @@ import edu.fatec.jvproject.aprovafacil.model.Cliente
 class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
     override fun to(from: ClienteDto): Cliente {
         return Cliente(
+            id = from.id,
             nome = from.nome,
-            cpf = from.cpf,
+            cpf = limparCpf(from.cpf),
             telefone = from.telefone,
             email = from.email,
             dataNascimento = from.dataNascimento,
@@ -20,6 +21,7 @@ class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
 
     override fun from(to: Cliente): ClienteDto {
         return ClienteDto(
+            id = to.id,
             nome = to.nome,
             cpf = to.cpf,
             telefone = to.telefone,
@@ -29,5 +31,9 @@ class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
             perfilFinanceiro = to.perfilFinanceiro,
             dadosInteresse = to.dadosInteresse
         )
+    }
+
+    fun limparCpf(cpf: String): String {
+        return cpf.replace(Regex("[^\\d]"), "")
     }
 }
