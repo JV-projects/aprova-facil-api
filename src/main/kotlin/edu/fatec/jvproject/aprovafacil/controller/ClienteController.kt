@@ -22,7 +22,7 @@ class ClienteController(private val clienteService: ClienteService) {
 
     @PostMapping("/buscar")
     fun buscarClientePeloCpf(@RequestBody clienteRequest: ClienteRequestDto): ResponseEntity<Any> {
-        val cliente = clienteService.buscarClientePeloCpf(ClienteMapper().limparCpf(clienteRequest.cpf))
+        val cliente = clienteService.buscarClientePeloCpf(clienteRequest.cpf)
 
         return if (cliente == null) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado com CPF: ${clienteRequest.cpf}")

@@ -15,7 +15,6 @@ class WebConfig{
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedOrigins("*")
                     .allowedHeaders("*")
-                    .allowCredentials(true)
             }
         }
     }

@@ -9,7 +9,7 @@ class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
         return Cliente(
             id = from.id,
             nome = from.nome,
-            cpf = limparCpf(from.cpf),
+            cpf = from.cpf,
             telefone = from.telefone,
             email = from.email,
             dataNascimento = from.dataNascimento,
@@ -31,9 +31,5 @@ class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
             perfilFinanceiro = to.perfilFinanceiro,
             dadosInteresse = to.dadosInteresse
         )
-    }
-
-    fun limparCpf(cpf: String): String {
-        return cpf.replace(Regex("[^\\d]"), "")
     }
 }
