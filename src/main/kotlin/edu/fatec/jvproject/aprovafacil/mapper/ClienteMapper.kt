@@ -1,8 +1,12 @@
 package edu.fatec.jvproject.aprovafacil.mapper
 
 import edu.fatec.jvproject.aprovafacil.dto.ClienteDto
+import edu.fatec.jvproject.aprovafacil.dto.DadosInteresseDto
+import edu.fatec.jvproject.aprovafacil.dto.PerfilFinanceiroDto
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.model.Cliente
+import edu.fatec.jvproject.aprovafacil.model.DadosInteresse
+import edu.fatec.jvproject.aprovafacil.model.PerfilFinanceiro
 
 class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
     override fun to(from: ClienteDto): Cliente {
@@ -14,8 +18,16 @@ class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
             email = from.email,
             dataNascimento = from.dataNascimento,
             statusCadastro = StatusCliente.PENDENTE,
-            perfilFinanceiro = from.perfilFinanceiro,
-            dadosInteresse = from.dadosInteresse
+            perfilFinanceiro = PerfilFinanceiro(
+                from.perfilFinanceiro.rendaBruta,
+                from.perfilFinanceiro.tipoRenda,
+                from.perfilFinanceiro.possuiRestricao,
+                from.perfilFinanceiro.possuiDependente
+            ),
+            dadosInteresse = DadosInteresse(
+                from.dadosInteresse.tipoImovel,
+                from.dadosInteresse.regiaoInteresse
+            )
         )
     }
 
@@ -28,8 +40,16 @@ class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
             email = to.email,
             dataNascimento = to.dataNascimento,
             status = to.statusCadastro,
-            perfilFinanceiro = to.perfilFinanceiro,
-            dadosInteresse = to.dadosInteresse
+            perfilFinanceiro = PerfilFinanceiroDto(
+                to.perfilFinanceiro.rendaBruta,
+                to.perfilFinanceiro.tipoRenda,
+                to.perfilFinanceiro.possuiRestricao,
+                to.perfilFinanceiro.possuiDependente
+            ),
+            dadosInteresse = DadosInteresseDto(
+                to.dadosInteresse.tipoImovel,
+                to.dadosInteresse.regiaoInteresse
+            )
         )
     }
 }
