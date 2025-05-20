@@ -8,12 +8,16 @@ data class PerfilFinanceiroDto(
 
     @field:NotNull(message = "Informe a 'renda bruta'.")
     @field:Positive(message = "A 'renda bruta' deve ser maior que zero.")
-    val rendaBruta: Double,
+    var rendaBruta: Double,
 
     @field:NotNull(message = "Informe o 'tipo de renda'.")
-    val tipoRenda: TipoRenda,
+    var tipoRenda: TipoRenda,
 
-    val possuiRestricao: Boolean? = null,
+    var possuiRestricao: Boolean? = null,
 
-    val possuiDependente: Boolean? = null
+    var possuiDependente: Boolean? = null,
+
+    var tresAnosFgts: Boolean? = null,
+
+    var desejaUsarFgts: Boolean? = null,
 )

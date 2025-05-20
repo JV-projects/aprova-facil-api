@@ -2,28 +2,25 @@ package edu.fatec.jvproject.aprovafacil.model
 
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import jakarta.persistence.*
-import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Past
 import java.time.LocalDate
 
 @Entity
 @Table(name = "clientes", uniqueConstraints = [UniqueConstraint(columnNames = ["cpf"])])
-data class Cliente(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
-    val nome: String,
+ class Cliente(
+    var nome: String,
     @Column(unique = true)
-    val cpf: String,
-    val telefone: String,
-    val email: String,
-    val dataNascimento: LocalDate,
-    val statusCadastro: StatusCliente,
+    var cpf: String,
+    var telefone: String,
+    var email: String,
+    var dataNascimento: LocalDate,
+    var statusCadastro: StatusCliente,
 
     @Embedded
-    val perfilFinanceiro: PerfilFinanceiro,
+    var perfilFinanceiro: PerfilFinanceiro,
     @Embedded
-    val dadosInteresse: DadosInteresse
-)
+    var dadosInteresse: DadosInteresse,
+
+    @OneToMany(mappedBy = "cliente", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var documentos: MutableList<DocumentoCliente> = mutableListOf()
+
+) : EntidadeDominio()

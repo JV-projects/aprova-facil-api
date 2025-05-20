@@ -7,6 +7,8 @@ import jakarta.persistence.Embeddable
 data class PerfilFinanceiro(
     val rendaBruta: Double,
     val tipoRenda: TipoRenda,
-    val possuiRestricao: Boolean? = null,
-    val possuiDependente: Boolean? = null,
+    val temRestricaoCredito: Boolean? = null,
+    val temDependente: Boolean? = null,
+    val tresAnosFgts: Boolean? = null,
+    val desejaUsarFgts: Boolean? = null
 )
