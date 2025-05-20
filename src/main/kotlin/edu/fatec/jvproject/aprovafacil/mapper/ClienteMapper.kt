@@ -11,7 +11,6 @@ import edu.fatec.jvproject.aprovafacil.model.PerfilFinanceiro
 class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
     override fun to(from: ClienteDto): Cliente {
         return Cliente(
-            id = from.id,
             nome = from.nome,
             cpf = from.cpf,
             telefone = from.telefone,
@@ -22,13 +21,17 @@ class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
                 from.perfilFinanceiro.rendaBruta,
                 from.perfilFinanceiro.tipoRenda,
                 from.perfilFinanceiro.possuiRestricao,
-                from.perfilFinanceiro.possuiDependente
+                from.perfilFinanceiro.possuiDependente,
+                from.perfilFinanceiro.tresAnosFgts,
+                from.perfilFinanceiro.desejaUsarFgts
             ),
             dadosInteresse = DadosInteresse(
                 from.dadosInteresse.tipoImovel,
                 from.dadosInteresse.regiaoInteresse
             )
-        )
+        ).apply {
+            from.id?.let { this.id = it }
+        }
     }
 
     override fun from(to: Cliente): ClienteDto {
@@ -43,8 +46,11 @@ class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
             perfilFinanceiro = PerfilFinanceiroDto(
                 to.perfilFinanceiro.rendaBruta,
                 to.perfilFinanceiro.tipoRenda,
-                to.perfilFinanceiro.possuiRestricao,
-                to.perfilFinanceiro.possuiDependente
+                to.perfilFinanceiro.temRestricaoCredito,
+                to.perfilFinanceiro.temDependente,
+                to.perfilFinanceiro.tresAnosFgts,
+                to.perfilFinanceiro.desejaUsarFgts
+
             ),
             dadosInteresse = DadosInteresseDto(
                 to.dadosInteresse.tipoImovel,
