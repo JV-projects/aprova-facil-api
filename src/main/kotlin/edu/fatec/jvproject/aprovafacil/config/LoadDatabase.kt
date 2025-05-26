@@ -1,5 +1,7 @@
 package edu.fatec.jvproject.aprovafacil.config;
 
+import edu.fatec.jvproject.aprovafacil.enum.EstadoCivil
+import edu.fatec.jvproject.aprovafacil.enum.EstadoImovel
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.enum.TipoImovel
 import edu.fatec.jvproject.aprovafacil.enum.TipoRenda
@@ -28,21 +30,46 @@ import java.time.LocalDate
                  email = "moises@gmail.com",
                  dataNascimento = LocalDate.of(1990, 5, 20),
                  statusCadastro = StatusCliente.PENDENTE,
+                 estadoCivil = EstadoCivil.SOLTEIRO,
                  perfilFinanceiro = PerfilFinanceiro(
                      rendaBruta = 6500.00,
                      tipoRenda = TipoRenda.FORMAL,
-                     temRestricaoCredito = false,
-                     temDependente = true,
+                     possuiRestricao = false,
+                     possuiDependente = true,
                      tresAnosFgts = true,
-                     desejaUsarFgts = true
+                     usarFgts = true
                  ),
                  dadosInteresse = DadosInteresse(
                      tipoImovel = TipoImovel.APARTAMENTO,
-                     regiaoInteresse = "Zona Sul - São Paulo"
+                     estadoImovel = EstadoImovel.USADO
                  )
              )
 
+             val cliente2 = Cliente(
+                 nome = "Maria",
+                 cpf = "23456789000",
+                 telefone = "11984756653",
+                 email = "maria@gmail.com",
+                 dataNascimento = LocalDate.of(1990, 5, 20),
+                 statusCadastro = StatusCliente.PENDENTE,
+                 estadoCivil = EstadoCivil.CASADO,
+                 perfilFinanceiro = PerfilFinanceiro(
+                     rendaBruta = 6500.00,
+                     tipoRenda = TipoRenda.AUTONOMO,
+                     possuiRestricao = false,
+                     possuiDependente = true,
+                     tresAnosFgts = true,
+                     usarFgts = true
+                 ),
+                 dadosInteresse = DadosInteresse(
+                     tipoImovel = TipoImovel.APARTAMENTO,
+                     estadoImovel = EstadoImovel.NOVO
+                 )
+             )
+
+
              clienteRepository.save(cliente)
+             clienteRepository.save(cliente2)
 
              println("Banco de dados carregado com sucesso!")
          }

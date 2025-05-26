@@ -1,9 +1,7 @@
 package edu.fatec.jvproject.aprovafacil.controller
 
-import edu.fatec.jvproject.aprovafacil.dto.BaseResponseEntity
+import edu.fatec.jvproject.aprovafacil.dto.BuscarCpfRequest
 import edu.fatec.jvproject.aprovafacil.dto.ClienteDto
-import edu.fatec.jvproject.aprovafacil.dto.DataResponseEntity
-import edu.fatec.jvproject.aprovafacil.dto.ErroResponseEntity
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.enum.TipoDocumento
 import edu.fatec.jvproject.aprovafacil.mapper.ClienteMapper
@@ -14,112 +12,50 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/clientes")
 class ClienteController(private val clienteService: IClienteService, private val documentoService: IDocumentoService) {
 
     @PostMapping("/salvar")
-    fun salvarCliente(@Valid @RequestBody dto: ClienteDto): ResponseEntity<out BaseResponseEntity> {
+    fun salvarCliente(@Valid @RequestBody dto: ClienteDto): ResponseEntity<ClienteDto> {
         var cliente = ClienteMapper().to(dto)
-        var clienteSalvo = clienteService.salvarClienteComInformacoes(cliente)
+        var clienteSalvo = ClienteMapper().from(clienteService.salvarClienteComInformacoes(cliente))
 
-        var data = DataResponseEntity(
-            data = ClienteMapper().from(clienteSalvo),
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.CREATED.value(),
-            mensagem = "Cadastrado feito com sucesso."
-        )
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(data);
+        return ResponseEntity.status(HttpStatus.CREATED).body(clienteSalvo);
     }
 
-    @GetMapping("/buscarPorCpf")
-    fun buscarClientePeloCpf(@RequestParam("cpf") cpfCliente: String): ResponseEntity<out BaseResponseEntity> {
-        val cliente = clienteService.buscarClientePeloCpf(cpfCliente)
-
-        return if (cliente == null) {
-            var erro = ErroResponseEntity(
-                timestamp = LocalDateTime.now(),
-                status = HttpStatus.NOT_FOUND.value(),
-                mensagem = "Cliente não encontrado para o cpf: $cpfCliente informado."
-            )
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro)
-        } else {
-            var data = DataResponseEntity(
-                data = ClienteMapper().from(cliente),
-                timestamp = LocalDateTime.now(),
-                status = HttpStatus.OK.value(),
-                mensagem = ""
-            )
-
-            ResponseEntity.ok(data)
-        }
+    @PostMapping("/buscarPorCpf")
+    /** Mudei pra @RequestBody porque não é seguro cpf ficar visível na URL**/
+    fun buscarClientePeloCpf(@RequestBody request: BuscarCpfRequest): ResponseEntity<ClienteDto> {
+        val cliente = clienteService.buscarClientePeloCpf(request.cpf)
+        return ResponseEntity.ok(ClienteMapper().from(cliente))
     }
 
     @GetMapping("/buscarPorId")
-    fun buscarClientePorId(@RequestParam("id") idCliente: Long): ResponseEntity<out BaseResponseEntity> {
+    fun buscarClientePorId(@RequestParam("id") idCliente: Long): ResponseEntity<ClienteDto> {
         val cliente = clienteService.buscarClientePeloId(idCliente)
-
-        return if (cliente == null) {
-            var erro = ErroResponseEntity(
-                timestamp = LocalDateTime.now(),
-                status = HttpStatus.NOT_FOUND.value(),
-                mensagem = "Cliente não encontrado para o id: $idCliente informado."
-            )
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro)
-        } else {
-            var data = DataResponseEntity(
-                data = ClienteMapper().from(cliente),
-                timestamp = LocalDateTime.now(),
-                status = HttpStatus.OK.value(),
-                mensagem = ""
-            )
-
-            ResponseEntity.ok(data)
-        }
+        return ResponseEntity.ok(ClienteMapper().from(cliente))
     }
 
     @GetMapping("/buscarPorStatus")
-    fun buscarClientePeloStatus(@RequestParam("status") status: StatusCliente): ResponseEntity<out BaseResponseEntity> {
+    fun buscarClientePeloStatus(@RequestParam("status") status: StatusCliente): ResponseEntity<List<ClienteDto>> {
         val clientes = clienteService.buscarClientesPeloStatus(status)
-
-        var data = DataResponseEntity(
-            data = ClienteMapper().mapFromList(clientes),
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.OK.value(),
-            mensagem = ""
-        )
-
-        return ResponseEntity.ok(data)
+        return ResponseEntity.ok(ClienteMapper().mapFromList(clientes))
     }
 
     @GetMapping("/listar")
-    fun listarClientes(): ResponseEntity<out BaseResponseEntity> {
+    fun listarClientes(): ResponseEntity<List<ClienteDto>> {
 
-        var data = DataResponseEntity(
-            data = ClienteMapper().mapFromList(clienteService.listarClientes()),
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.OK.value(),
-            mensagem = ""
-        )
-
-        return ResponseEntity.ok(data)
+        return ResponseEntity.ok(ClienteMapper().mapFromList(clienteService.listarClientes()))
     }
 
     @PutMapping("/atualizar")
-    fun atualizarCliente(@Valid @RequestBody dto: ClienteDto): ResponseEntity<out BaseResponseEntity> {
+    fun atualizarCliente(@Valid @RequestBody dto: ClienteDto): ResponseEntity<ClienteDto> {
         var cliente = ClienteMapper().to(dto)
         var clienteAtualizado = clienteService.atualizarCliente(cliente)
 
-        var data = DataResponseEntity(
-            data = ClienteMapper().from(clienteAtualizado),
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.OK.value(),
-            mensagem = "Atualização feita com sucesso."
-        )
-        return ResponseEntity.ok(data)
+        return ResponseEntity.ok(ClienteMapper().from(clienteAtualizado))
     }
 
     @DeleteMapping("/deletar/{id}")
@@ -129,31 +65,31 @@ class ClienteController(private val clienteService: IClienteService, private val
     }
 
     @PostMapping("/documentos")
-    fun uploadDocumentos(  @RequestParam("clienteId") clienteId: Long,
-                                 @RequestParam("RG") rg: MultipartFile?,
-                                 @RequestParam("CPF") cpf: MultipartFile?,
-                                 @RequestParam("CERTIDAO") certidao: MultipartFile?,
-                                 @RequestParam("HOLERITE") holerite: MultipartFile?,
-                                 @RequestParam("EXTRATO_FGTS") extratoFgts: MultipartFile?,
-                                 @RequestParam("CARTEIRA_TRABALHO") carteiraTrabalho: MultipartFile?): ResponseEntity<out BaseResponseEntity> {
+    fun uploadDocumentos(
+        @RequestParam("clienteId") clienteId: Long,
+        @RequestParam("RG") rg: MultipartFile?,
+        @RequestParam("CPF") cpf: MultipartFile?,
+        @RequestParam("COMPROVANTE_RESIDENCIA") comprovanteResidencia: MultipartFile?,
+        @RequestParam("PIS_CARTAO_CIDADAO") pisCartao: MultipartFile?,
+        @RequestParam("CERTIDAO") certidao: MultipartFile?,
+        @RequestParam("HOLERITE") holerite: MultipartFile?,
+        @RequestParam("EXTRATO_FGTS") extratoFgts: MultipartFile?,
+        @RequestParam("DECLARACAO_IR") declaracaoIr: MultipartFile?,
+        @RequestParam("CARTEIRA_TRABALHO") carteiraTrabalho: MultipartFile?
+    ): ResponseEntity<String> {
 
         val documentosMap = mutableMapOf<TipoDocumento, MultipartFile>()
         rg?.let { documentosMap[TipoDocumento.RG] = it }
         cpf?.let { documentosMap[TipoDocumento.CPF] = it }
+        comprovanteResidencia?.let { documentosMap[TipoDocumento.COMPROVANTE_RESIDENCIA] = it }
+        pisCartao?.let { documentosMap[TipoDocumento.PIS_CARTAO_CIDADAO] = it }
         certidao?.let { documentosMap[TipoDocumento.CERTIDAO] = it }
         holerite?.let { documentosMap[TipoDocumento.HOLERITE] = it }
         extratoFgts?.let { documentosMap[TipoDocumento.EXTRATO_FGTS] = it }
+        declaracaoIr?.let { documentosMap[TipoDocumento.DECLARACAO_IR] = it }
         carteiraTrabalho?.let { documentosMap[TipoDocumento.CARTEIRA_TRABALHO] = it }
 
         documentoService.processarMapDocumentos(documentosMap, clienteId)
-
-        var data = DataResponseEntity(
-            data = null,
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.CREATED.value(),
-            mensagem = "Documentos carregados com sucesso."
-        )
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(data);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Documentos carregados com sucesso.");
     }
 }

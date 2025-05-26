@@ -1,7 +1,7 @@
 package edu.fatec.jvproject.aprovafacil.service
 
 import edu.fatec.jvproject.aprovafacil.enum.TipoDocumento
-import edu.fatec.jvproject.aprovafacil.exceptions.DocumentoExistenteException
+import edu.fatec.jvproject.aprovafacil.exceptions.DocumentoException
 import edu.fatec.jvproject.aprovafacil.model.Cliente
 import edu.fatec.jvproject.aprovafacil.model.DocumentoCliente
 import edu.fatec.jvproject.aprovafacil.repository.IClienteRepository
@@ -47,7 +47,7 @@ class DocumentoService(
         Files.createDirectories(baseDir)
 
         if (Files.exists(pathDestino)) {
-            throw DocumentoExistenteException(pathDestino.toString())
+            throw DocumentoException("Já existe um documento nesse caminho: ${pathDestino} ")
         }
         documento.transferTo(pathDestino.toFile())
 
@@ -62,26 +62,33 @@ class DocumentoService(
         return documentoRepository.findAllByClienteId(clienteId)
     }
 
-    private fun validarExistenciaDocumentos(documento: Map<TipoDocumento, MultipartFile>, cliente: Cliente){
-        if(!documento.containsKey(TipoDocumento.RG))
-            throw IllegalArgumentException("O RG é um documento obrigatório")
+    private fun validarExistenciaDocumentos(documento: Map<TipoDocumento, MultipartFile>, cliente: Cliente) {
+        if (!documento.containsKey(TipoDocumento.RG))
+            throw DocumentoException("O RG é um documento obrigatório")
 
-        if(!documento.containsKey(TipoDocumento.CPF))
-            throw IllegalArgumentException("O CPF é um documento obrigatório")
+        if (!documento.containsKey(TipoDocumento.CPF))
+            throw DocumentoException("O CPF é um documento obrigatório")
 
-//        if(!documento.containsKey(TipoDocumento.CERTIDAO))
-//            throw IllegalArgumentException("A Certidão de estado civíl ou nascimento é um documento obrigatório.")
-//
-//        if(!documento.containsKey(TipoDocumento.HOLERITE))
-//            throw IllegalArgumentException("O Holerite é um documento obrigatório.")
-//
-//        if(!documento.containsKey(TipoDocumento.CARTEIRA_TRABALHO))
-//            throw IllegalArgumentException("O Holerite é um documento obrigatório.")
-//
-//        if(cliente.perfilFinanceiro.desejaUsarFgts == true
-//            && !documento.containsKey(TipoDocumento.EXTRATO_FGTS))
-//            throw IllegalArgumentException("O Extrato de FGTS é um documento obrigatório.")
+        if (!documento.containsKey(TipoDocumento.CERTIDAO))
+            throw DocumentoException("A Certidão de estado civíl ou de nascimento é um documento obrigatório.")
 
+        if(!documento.containsKey(TipoDocumento.COMPROVANTE_RESIDENCIA))
+            throw DocumentoException("O comprovante de residência é um documento obrigatório.")
+
+        if(!documento.containsKey(TipoDocumento.PIS_CARTAO_CIDADAO))
+            throw DocumentoException("O PIS ou Cartão do Cidadão é um documento obrigatório.")
+
+        if (!documento.containsKey(TipoDocumento.HOLERITE))
+            throw DocumentoException("O Holerite é um documento obrigatório.")
+
+        if (!documento.containsKey(TipoDocumento.CARTEIRA_TRABALHO))
+            throw DocumentoException("O Holerite é um documento obrigatório.")
+
+        if (!documento.containsKey(TipoDocumento.EXTRATO_FGTS))
+            throw DocumentoException("O Extrato de FGTS é um documento obrigatório.")
+
+        if(!documento.containsKey(TipoDocumento.DECLARACAO_IR))
+            throw DocumentoException("A declaração de imposto de renda é um documento obrigatório.")
     }
 
 }

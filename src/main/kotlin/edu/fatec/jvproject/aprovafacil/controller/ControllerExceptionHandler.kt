@@ -1,7 +1,9 @@
 package edu.fatec.jvproject.aprovafacil.controller
 
-import edu.fatec.jvproject.aprovafacil.dto.BaseResponseEntity
 import edu.fatec.jvproject.aprovafacil.dto.ErroResponseEntity
+import edu.fatec.jvproject.aprovafacil.exceptions.ClienteException
+import edu.fatec.jvproject.aprovafacil.exceptions.ClienteNaoEncontradoException
+import edu.fatec.jvproject.aprovafacil.exceptions.DocumentoException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -17,13 +19,13 @@ class ControllerExceptionHandler {
         val erro = ErroResponseEntity(
             timestamp = LocalDateTime.now(),
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            mensagem = e.message ?: "Erro interno no servidor"
+            mensagem = "Erro interno no servidor"
         )
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro)
     }
 
-    @ExceptionHandler(IllegalArgumentException::class)
-    fun handleBadRequest(e: IllegalArgumentException): ResponseEntity<out BaseResponseEntity> {
+    @ExceptionHandler(DocumentoException::class)
+    fun handleBadRequest(e: DocumentoException): ResponseEntity<ErroResponseEntity> {
 
         var erro = ErroResponseEntity(
             timestamp = LocalDateTime.now(),
@@ -36,8 +38,8 @@ class ControllerExceptionHandler {
             .body(erro)
     }
 
-    @ExceptionHandler(RuntimeException::class)
-    fun handleBadRequest(e: RuntimeException): ResponseEntity<Any> {
+    @ExceptionHandler(ClienteException::class)
+    fun handleBadRequest(e: ClienteException): ResponseEntity<ErroResponseEntity> {
         var erro = ErroResponseEntity(
             timestamp = LocalDateTime.now(),
             status = HttpStatus.BAD_REQUEST.value(),
@@ -46,6 +48,19 @@ class ControllerExceptionHandler {
 
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
+            .body(erro)
+    }
+
+    @ExceptionHandler(ClienteNaoEncontradoException::class)
+    fun handleBadRequest(e: ClienteNaoEncontradoException): ResponseEntity<ErroResponseEntity> {
+        var erro = ErroResponseEntity(
+            timestamp = LocalDateTime.now(),
+            status = HttpStatus.NOT_FOUND.value(),
+            mensagem = e.message ?: "Erro interno no servidor"
+        )
+
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
             .body(erro)
     }
 }
