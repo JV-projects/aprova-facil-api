@@ -17,17 +17,18 @@ class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
             email = from.email,
             dataNascimento = from.dataNascimento,
             statusCadastro = StatusCliente.PENDENTE,
+            estadoCivil = from.estadoCivil,
             perfilFinanceiro = PerfilFinanceiro(
                 from.perfilFinanceiro.rendaBruta,
                 from.perfilFinanceiro.tipoRenda,
                 from.perfilFinanceiro.possuiRestricao,
                 from.perfilFinanceiro.possuiDependente,
                 from.perfilFinanceiro.tresAnosFgts,
-                from.perfilFinanceiro.desejaUsarFgts
+                from.perfilFinanceiro.usarFgts
             ),
             dadosInteresse = DadosInteresse(
                 from.dadosInteresse.tipoImovel,
-                from.dadosInteresse.regiaoInteresse
+                from.dadosInteresse.estadoImovel
             )
         ).apply {
             from.id?.let { this.id = it }
@@ -43,18 +44,19 @@ class ClienteMapper : AbstractMapper<ClienteDto, Cliente>() {
             email = to.email,
             dataNascimento = to.dataNascimento,
             status = to.statusCadastro,
+            estadoCivil = to.estadoCivil,
             perfilFinanceiro = PerfilFinanceiroDto(
                 to.perfilFinanceiro.rendaBruta,
                 to.perfilFinanceiro.tipoRenda,
-                to.perfilFinanceiro.temRestricaoCredito,
-                to.perfilFinanceiro.temDependente,
+                to.perfilFinanceiro.possuiRestricao,
+                to.perfilFinanceiro.possuiDependente,
                 to.perfilFinanceiro.tresAnosFgts,
-                to.perfilFinanceiro.desejaUsarFgts
+                to.perfilFinanceiro.usarFgts
 
             ),
             dadosInteresse = DadosInteresseDto(
                 to.dadosInteresse.tipoImovel,
-                to.dadosInteresse.regiaoInteresse
+                to.dadosInteresse.estadoImovel
             )
         )
     }

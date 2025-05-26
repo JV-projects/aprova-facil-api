@@ -1,5 +1,6 @@
 package edu.fatec.jvproject.aprovafacil.dto
 
+import edu.fatec.jvproject.aprovafacil.enum.EstadoCivil
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.model.DadosInteresse
 import jakarta.validation.Valid
@@ -25,6 +26,7 @@ data class ClienteDto(
     val email: String,
 
     val status: StatusCliente? = null,
+    val estadoCivil: EstadoCivil,
 
     @field:NotNull(message = "A 'data de nascimento' é obrigatória.")
     @field:Past(message = "Não é possível inserir uma 'data de nascimento' no futuro.")
@@ -34,5 +36,7 @@ data class ClienteDto(
     val perfilFinanceiro: PerfilFinanceiroDto,
 
     @field:Valid
-    val dadosInteresse: DadosInteresseDto
+    val dadosInteresse: DadosInteresseDto,
+
+    val devolutiva: String? = null
 )

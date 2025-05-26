@@ -13,11 +13,11 @@ data class PerfilFinanceiroDto(
     @field:NotNull(message = "Informe o 'tipo de renda'.")
     var tipoRenda: TipoRenda,
 
-    var possuiRestricao: Boolean? = null,
+    var possuiRestricao: Boolean? = false,
 
-    var possuiDependente: Boolean? = null,
+    var possuiDependente: Boolean? = false,
 
-    var tresAnosFgts: Boolean? = null,
+    var tresAnosFgts: Boolean? = false,
 
-    var desejaUsarFgts: Boolean? = null,
+    var usarFgts: Boolean? = false,
 )
