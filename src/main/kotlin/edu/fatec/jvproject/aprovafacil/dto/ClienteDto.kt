@@ -38,5 +38,7 @@ data class ClienteDto(
     @field:Valid
     val dadosInteresse: DadosInteresseDto,
 
+    val participante: String? = null,
+
     val devolutiva: String? = null
 )

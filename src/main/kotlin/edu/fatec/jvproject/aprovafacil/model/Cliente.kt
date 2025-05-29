@@ -26,6 +26,10 @@ class Cliente(
     var documentos: MutableList<DocumentoCliente> = mutableListOf(),
 
     @Column(nullable = true)
-    var devolutiva: String? = null
+    var devolutiva: String? = null,
+
+    @ManyToOne
+    @JoinColumn(name = "id_participante")
+    var participante: Cliente? = null
 
 ) : EntidadeDominio()

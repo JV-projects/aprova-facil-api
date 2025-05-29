@@ -4,6 +4,7 @@ import edu.fatec.jvproject.aprovafacil.dto.BuscarCpfRequest
 import edu.fatec.jvproject.aprovafacil.dto.ClienteDto
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.enum.TipoDocumento
+import edu.fatec.jvproject.aprovafacil.exceptions.DocumentoException
 import edu.fatec.jvproject.aprovafacil.mapper.ClienteMapper
 import edu.fatec.jvproject.aprovafacil.service.IClienteService
 import edu.fatec.jvproject.aprovafacil.service.IDocumentoService
@@ -19,8 +20,7 @@ class ClienteController(private val clienteService: IClienteService, private val
 
     @PostMapping("/salvar")
     fun salvarCliente(@Valid @RequestBody dto: ClienteDto): ResponseEntity<ClienteDto> {
-        var cliente = ClienteMapper().to(dto)
-        var clienteSalvo = ClienteMapper().from(clienteService.salvarClienteComInformacoes(cliente))
+        var clienteSalvo = ClienteMapper().from(clienteService.salvarClienteComInformacoes(dto))
 
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteSalvo);
     }
@@ -79,17 +79,40 @@ class ClienteController(private val clienteService: IClienteService, private val
     ): ResponseEntity<String> {
 
         val documentosMap = mutableMapOf<TipoDocumento, MultipartFile>()
-        rg?.let { documentosMap[TipoDocumento.RG] = it }
-        cpf?.let { documentosMap[TipoDocumento.CPF] = it }
-        comprovanteResidencia?.let { documentosMap[TipoDocumento.COMPROVANTE_RESIDENCIA] = it }
-        pisCartao?.let { documentosMap[TipoDocumento.PIS_CARTAO_CIDADAO] = it }
-        certidao?.let { documentosMap[TipoDocumento.CERTIDAO] = it }
-        holerite?.let { documentosMap[TipoDocumento.HOLERITE] = it }
-        extratoFgts?.let { documentosMap[TipoDocumento.EXTRATO_FGTS] = it }
-        declaracaoIr?.let { documentosMap[TipoDocumento.DECLARACAO_IR] = it }
-        carteiraTrabalho?.let { documentosMap[TipoDocumento.CARTEIRA_TRABALHO] = it }
+        validarEAdicionar(TipoDocumento.RG, rg, documentosMap)
+        validarEAdicionar(TipoDocumento.CPF, cpf, documentosMap)
+        validarEAdicionar(TipoDocumento.COMPROVANTE_RESIDENCIA, comprovanteResidencia, documentosMap)
+        validarEAdicionar(TipoDocumento.PIS_CARTAO_CIDADAO, pisCartao, documentosMap)
+        validarEAdicionar(TipoDocumento.CERTIDAO, certidao, documentosMap)
+        validarEAdicionar(TipoDocumento.HOLERITE, holerite, documentosMap)
+        validarEAdicionar(TipoDocumento.EXTRATO_FGTS, extratoFgts, documentosMap)
+        validarEAdicionar(TipoDocumento.DECLARACAO_IR, declaracaoIr, documentosMap)
+        validarEAdicionar(TipoDocumento.CARTEIRA_TRABALHO, carteiraTrabalho, documentosMap)
 
         documentoService.processarMapDocumentos(documentosMap, clienteId)
         return ResponseEntity.status(HttpStatus.CREATED).body("Documentos carregados com sucesso.");
     }
+
+    @GetMapping("/recuperarDocumentos")
+    fun listarDocumentosPorCliente(@RequestParam id: Long): ResponseEntity<Map<TipoDocumento, String>> {
+        val documentos = documentoService.recuperarDocumentosDoClientePorId(id)
+        return ResponseEntity.ok(documentos)
+    }
+
+    fun validarEAdicionar(
+        tipo: TipoDocumento,
+        arquivo: MultipartFile?,
+        map: MutableMap<TipoDocumento, MultipartFile>
+    ) {
+        arquivo?.let {
+            if (!isPdfPelaExtensao(it)) throw DocumentoException("Formato de arquivo inválido para ${tipo.name}, deve ser .pdf")
+            map[tipo] = it
+        }
+    }
+
+    fun isPdfPelaExtensao(file: MultipartFile): Boolean {
+        return file.originalFilename?.lowercase()?.endsWith(".pdf") == true
+    }
+
+
 }
