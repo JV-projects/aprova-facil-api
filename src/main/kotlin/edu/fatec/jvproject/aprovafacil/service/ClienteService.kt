@@ -1,8 +1,10 @@
 package edu.fatec.jvproject.aprovafacil.service
 
+import edu.fatec.jvproject.aprovafacil.dto.ClienteDto
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.exceptions.ClienteException
 import edu.fatec.jvproject.aprovafacil.exceptions.ClienteNaoEncontradoException
+import edu.fatec.jvproject.aprovafacil.mapper.ClienteMapper
 import edu.fatec.jvproject.aprovafacil.model.Cliente
 import edu.fatec.jvproject.aprovafacil.repository.IClienteRepository
 import org.springframework.stereotype.Service
@@ -10,14 +12,22 @@ import org.springframework.stereotype.Service
 @Service
 class ClienteService(val clienteRepository: IClienteRepository) : IClienteService {
 
-    override fun salvarClienteComInformacoes(cliente: Cliente): Cliente {
+        override fun salvarClienteComInformacoes(clienteDto: ClienteDto): Cliente {
 
-        val clienteEncontrado = clienteRepository.findByCpf(cliente.cpf)
-        if (clienteEncontrado != null)
-            throw RuntimeException("CPF ${cliente.cpf} já cadastrado")
+            val clienteEncontrado = clienteRepository.findByCpf(clienteDto.cpf)
+            if (clienteEncontrado != null)
+                throw ClienteException("CPF ${clienteDto.cpf} já cadastrado")
 
-        return clienteRepository.save(cliente)
-    }
+            val clienteASerSalvo = ClienteMapper().to(clienteDto)
+
+            clienteDto.participante?.let { cpfParticipante ->
+                val participante = clienteRepository.findByCpf(cpfParticipante)
+                    ?: throw ClienteException("Participante não encontrado para o CPF $cpfParticipante")
+                clienteASerSalvo.participante = participante
+            }
+
+            return clienteRepository.save(clienteASerSalvo)
+        }
 
     override fun buscarClientePeloCpf(cpf: String): Cliente {
         return clienteRepository.findByCpf(cpf)

@@ -22,4 +22,10 @@ interface IDocumentoService {
      * Busca todos os documentos de um cliente
      */
     fun buscarDocumentosPorClienteId(clienteId: Long) : List<DocumentoCliente>
+
+    /**
+     * Recupeda os documentos do cliente por id
+     * */
+    fun recuperarDocumentosDoClientePorId(clienteId: Long) : Map<TipoDocumento, String>
+
 }
