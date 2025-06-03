@@ -6,28 +6,31 @@ import edu.fatec.jvproject.aprovafacil.exceptions.ClienteException
 import edu.fatec.jvproject.aprovafacil.exceptions.ClienteNaoEncontradoException
 import edu.fatec.jvproject.aprovafacil.mapper.ClienteMapper
 import edu.fatec.jvproject.aprovafacil.model.Cliente
+import edu.fatec.jvproject.aprovafacil.repository.IAtendimentoRepository
 import edu.fatec.jvproject.aprovafacil.repository.IClienteRepository
 import org.springframework.stereotype.Service
 
 @Service
-class ClienteService(val clienteRepository: IClienteRepository) : IClienteService {
+class ClienteService(
+    val clienteRepository: IClienteRepository,
+) : IClienteService {
 
-        override fun salvarClienteComInformacoes(clienteDto: ClienteDto): Cliente {
+    override fun salvarClienteComInformacoes(clienteDto: ClienteDto): Cliente {
 
-            val clienteEncontrado = clienteRepository.findByCpf(clienteDto.cpf)
-            if (clienteEncontrado != null)
-                throw ClienteException("CPF ${clienteDto.cpf} já cadastrado")
+        val clienteEncontrado = clienteRepository.findByCpf(clienteDto.cpf)
+        if (clienteEncontrado != null)
+            throw ClienteException("CPF ${clienteDto.cpf} já cadastrado")
 
-            val clienteASerSalvo = ClienteMapper().to(clienteDto)
+        val clienteASerSalvo = ClienteMapper().to(clienteDto)
 
-            clienteDto.participante?.let { cpfParticipante ->
-                val participante = clienteRepository.findByCpf(cpfParticipante)
-                    ?: throw ClienteException("Participante não encontrado para o CPF $cpfParticipante")
-                clienteASerSalvo.participante = participante
-            }
-
-            return clienteRepository.save(clienteASerSalvo)
+        clienteDto.participante?.let { cpfParticipante ->
+            val participante = clienteRepository.findByCpf(cpfParticipante)
+                ?: throw ClienteException("Participante não encontrado para o CPF $cpfParticipante")
+            clienteASerSalvo.participante = participante
         }
+
+        return clienteRepository.save(clienteASerSalvo)
+    }
 
     override fun buscarClientePeloCpf(cpf: String): Cliente {
         return clienteRepository.findByCpf(cpf)
@@ -36,10 +39,10 @@ class ClienteService(val clienteRepository: IClienteRepository) : IClienteServic
 
     override fun buscarClientePeloId(idCliente: Long): Cliente {
         return clienteRepository.findById(idCliente)
-            .orElseThrow{ ClienteNaoEncontradoException("Cliente com ID $idCliente não encontrado.")}
+            .orElseThrow { ClienteNaoEncontradoException("Cliente com ID $idCliente não encontrado.") }
     }
 
-    override fun buscarClientesPeloStatus(status : StatusCliente): List<Cliente> {
+    override fun buscarClientesPeloStatus(status: StatusCliente): List<Cliente> {
         return clienteRepository.findAllByStatusCadastro(status)
     }
 
@@ -69,11 +72,20 @@ class ClienteService(val clienteRepository: IClienteRepository) : IClienteServic
         return clienteRepository.save(clienteExistente)
     }
 
+    override fun atualizarStatusCliente(clienteId: Long, novoStatus: StatusCliente): Cliente {
+        val cliente = clienteRepository.findById(clienteId)
+            .orElseThrow { ClienteNaoEncontradoException("Cliente com ID $clienteId não encontrado.") }
+
+        cliente.statusCadastro = novoStatus
+
+        return clienteRepository.save(cliente)
+    }
+
+
     override fun deletarCliente(id: Long) {
         val cliente = clienteRepository.findById(id)
-            .orElseThrow{ ClienteNaoEncontradoException("Cliente não encontrado para exclusão")}
+            .orElseThrow { ClienteNaoEncontradoException("Cliente não encontrado para exclusão") }
 
         clienteRepository.delete(cliente)
     }
-
 }

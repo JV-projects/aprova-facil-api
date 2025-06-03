@@ -5,5 +5,5 @@ import java.time.LocalDateTime
 class ErroResponseEntity(
     timestamp: LocalDateTime,
     status: Int,
-    mensagem: String
+    mensagem: String,
 ) : BaseResponseEntity(timestamp, status, mensagem);

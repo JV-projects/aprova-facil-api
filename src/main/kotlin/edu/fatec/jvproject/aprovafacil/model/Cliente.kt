@@ -25,11 +25,10 @@ class Cliente(
     @OneToMany(mappedBy = "cliente", cascade = [CascadeType.ALL], orphanRemoval = true)
     var documentos: MutableList<DocumentoCliente> = mutableListOf(),
 
-    @Column(nullable = true)
-    var devolutiva: String? = null,
-
     @ManyToOne
     @JoinColumn(name = "id_participante")
-    var participante: Cliente? = null
+    var participante: Cliente? = null,
 
+    @OneToMany(mappedBy = "cliente", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var atendimentos: MutableList<Atendimento> = mutableListOf(),
 ) : EntidadeDominio()
