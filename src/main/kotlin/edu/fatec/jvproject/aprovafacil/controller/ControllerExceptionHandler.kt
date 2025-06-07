@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @ControllerAdvice(annotations = [RestController::class])
 class ControllerExceptionHandler {
@@ -17,7 +18,7 @@ class ControllerExceptionHandler {
     @ExceptionHandler(Exception::class)
     fun handleGenericException(e: Exception): ResponseEntity<ErroResponseEntity> {
         val erro = ErroResponseEntity(
-            timestamp = LocalDateTime.now(),
+            timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             mensagem = "Erro interno no servidor"
         )
@@ -28,7 +29,7 @@ class ControllerExceptionHandler {
     fun handleBadRequest(e: DocumentoException): ResponseEntity<ErroResponseEntity> {
 
         var erro = ErroResponseEntity(
-            timestamp = LocalDateTime.now(),
+            timestamp = LocalDateTime.now().withNano(0),
             status = HttpStatus.BAD_REQUEST.value(),
             mensagem = e.message ?: "Erro interno no servidor"
         )
@@ -41,7 +42,7 @@ class ControllerExceptionHandler {
     @ExceptionHandler(ClienteException::class)
     fun handleBadRequest(e: ClienteException): ResponseEntity<ErroResponseEntity> {
         var erro = ErroResponseEntity(
-            timestamp = LocalDateTime.now(),
+            timestamp = LocalDateTime.now().withNano(0),
             status = HttpStatus.BAD_REQUEST.value(),
             mensagem = e.message ?: "Erro interno no servidor"
         )
@@ -54,7 +55,7 @@ class ControllerExceptionHandler {
     @ExceptionHandler(ClienteNaoEncontradoException::class)
     fun handleBadRequest(e: ClienteNaoEncontradoException): ResponseEntity<ErroResponseEntity> {
         var erro = ErroResponseEntity(
-            timestamp = LocalDateTime.now(),
+            timestamp = LocalDateTime.now().withNano(0),
             status = HttpStatus.NOT_FOUND.value(),
             mensagem = e.message ?: "Erro interno no servidor"
         )

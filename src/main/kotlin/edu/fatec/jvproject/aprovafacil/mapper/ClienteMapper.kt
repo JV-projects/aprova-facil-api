@@ -2,6 +2,7 @@ package edu.fatec.jvproject.aprovafacil.mapper
 
 import edu.fatec.jvproject.aprovafacil.dto.ClienteDto
 import edu.fatec.jvproject.aprovafacil.dto.DadosInteresseDto
+import edu.fatec.jvproject.aprovafacil.dto.DocumentoClienteDto
 import edu.fatec.jvproject.aprovafacil.dto.PerfilFinanceiroDto
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.exceptions.ClienteNaoEncontradoException
@@ -10,7 +11,8 @@ import edu.fatec.jvproject.aprovafacil.model.DadosInteresse
 import edu.fatec.jvproject.aprovafacil.model.PerfilFinanceiro
 import edu.fatec.jvproject.aprovafacil.service.IClienteService
 
-class ClienteMapper() : AbstractMapper<ClienteDto, Cliente>() {
+class ClienteMapper(
+) : AbstractMapper<ClienteDto, Cliente>() {
     override fun to(from: ClienteDto): Cliente {
         return Cliente(
             nome = from.nome,
@@ -60,7 +62,14 @@ class ClienteMapper() : AbstractMapper<ClienteDto, Cliente>() {
                 to.dadosInteresse.tipoImovel,
                 to.dadosInteresse.estadoImovel
             ),
-            participante = to.participante?.cpf ?: ""
+            participante = to.participante?.cpf ?: "",
+            documentos = emptyMap(),
+            documentosSalvos = to.registroDocumentos.map { docCliente ->
+                DocumentoClienteDto(
+                    tipo = docCliente.tipoDocumento,
+                    nomeArquivo = docCliente.nomeArquivo
+                )
+            }
         )
     }
 }
