@@ -7,6 +7,10 @@ import org.springframework.web.multipart.MultipartFile
 
 interface IDocumentoService {
     /**
+     * Processa o Map de documentos em base64
+     */
+    fun processarDocumentosBase64(documentos: Map<TipoDocumento, String>, cliente: Cliente) : List<DocumentoCliente>
+    /**
      * Processa o Map de documentos enviado
      */
     fun processarMapDocumentos(documentos: Map<TipoDocumento, MultipartFile>, clienteId: Long)
@@ -17,7 +21,7 @@ interface IDocumentoService {
     /**
      * Registra o documento no banco de dados
      */
-    fun registrarDocumento(documento: DocumentoCliente)
+    fun registrarDocumento(documento: DocumentoCliente) : DocumentoCliente
     /**
      * Busca todos os documentos de um cliente
      */
