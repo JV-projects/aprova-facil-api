@@ -1,7 +1,7 @@
 package edu.fatec.jvproject.aprovafacil.dto
 
-data class DistribuirRequest(
+data class AtendimentoRequest(
     val idCliente: Long,
     val emailCorretor: String,
-    val analiseCredito:String
+    val analiseCredito: String
 )

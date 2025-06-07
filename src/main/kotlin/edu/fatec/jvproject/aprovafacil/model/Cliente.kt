@@ -1,5 +1,6 @@
 package edu.fatec.jvproject.aprovafacil.model
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import edu.fatec.jvproject.aprovafacil.enum.EstadoCivil
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import jakarta.persistence.*
@@ -30,5 +31,6 @@ class Cliente(
     var participante: Cliente? = null,
 
     @OneToMany(mappedBy = "cliente", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @JsonManagedReference
     var atendimentos: MutableList<Atendimento> = mutableListOf(),
 ) : EntidadeDominio()

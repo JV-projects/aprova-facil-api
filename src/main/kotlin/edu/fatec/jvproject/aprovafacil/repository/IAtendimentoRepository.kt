@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface IAtendimentoRepository : JpaRepository<Atendimento, Long> {
     fun findByCliente(cliente: Cliente): Atendimento?
-    fun findByCliente_Id(clienteId: Long): Atendimento?
+    fun findByClienteId(clienteId: Long): Atendimento?
 }
