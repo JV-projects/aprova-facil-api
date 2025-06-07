@@ -23,7 +23,7 @@ class Cliente(
     var dadosInteresse: DadosInteresse,
 
     @OneToMany(mappedBy = "cliente", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var documentos: MutableList<DocumentoCliente> = mutableListOf(),
+    var registroDocumentos: MutableList<DocumentoCliente> = mutableListOf(),
 
     @ManyToOne
     @JoinColumn(name = "id_participante")
