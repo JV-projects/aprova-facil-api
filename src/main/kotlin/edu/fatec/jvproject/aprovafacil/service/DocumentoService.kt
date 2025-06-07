@@ -24,7 +24,7 @@ class DocumentoService(
 
     override fun processarDocumentosBase64(documentos: Map<TipoDocumento, String>, cliente: Cliente) : List<DocumentoCliente> {
 
-        validarExistenciaDocumentos(documentos, cliente)
+        validarExistenciaDocumentos(documentos)
         var documentosSalvos = mutableListOf<DocumentoCliente>()
         documentos.forEach { (tipo, base64String) ->
             val bytes = Base64.getDecoder().decode(base64String)
@@ -122,7 +122,7 @@ class DocumentoService(
         }
     }
 
-    private fun validarExistenciaDocumentos(documento: Map<TipoDocumento, String>, cliente: Cliente) {
+    private fun validarExistenciaDocumentos(documento: Map<TipoDocumento, String>) {
         if (!documento.containsKey(TipoDocumento.RG))
             throw DocumentoException("O RG é um documento obrigatório")
 

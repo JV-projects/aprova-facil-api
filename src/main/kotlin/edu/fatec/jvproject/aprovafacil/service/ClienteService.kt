@@ -72,7 +72,7 @@ class ClienteService(
         if (clienteEncontrado != null)
             throw ClienteException("CPF ${clienteDto.cpf} já cadastrado")
 
-        val clienteExistente = clienteRepository.findById(clienteDto.id!!)
+        val clienteExistente = clienteRepository.findById(clienteDto.id)
             .orElseThrow { ClienteNaoEncontradoException("Cliente com ID ${clienteDto.id} não encontrado.") }
 
         clienteExistente.apply {

@@ -2,12 +2,15 @@ package edu.fatec.jvproject.aprovafacil.service
 
 import edu.fatec.jvproject.aprovafacil.dto.AtendimentoDTO
 import edu.fatec.jvproject.aprovafacil.dto.ConteudoTemplate
-import edu.fatec.jvproject.aprovafacil.dto.DistribuirRequest
+import edu.fatec.jvproject.aprovafacil.dto.AtendimentoRequest
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.exceptions.ClienteException
 import edu.fatec.jvproject.aprovafacil.exceptions.TokenException
+import edu.fatec.jvproject.aprovafacil.mapper.toDto
 import edu.fatec.jvproject.aprovafacil.model.Atendimento
+import edu.fatec.jvproject.aprovafacil.model.Cliente
 import edu.fatec.jvproject.aprovafacil.repository.IAtendimentoRepository
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,76 +20,80 @@ class AtendimentoService(
     val emailSender: EmailSenderService,
     val tokenService: DevolutivaTokenService
 ) : IAtendimentoService {
-    override fun registrarAtendimento(atendimento: AtendimentoDTO) : Atendimento {
-        var cliente = clienteService.buscarClientePeloId(atendimento.idCliente)
-        var atendimento = Atendimento(
-            cliente,
-            atendimento.analiseCredito,
-            atendimento.emailCorretor
-        )
-
+    override fun registrarAnaliseCredito(atendimentoRequest: AtendimentoRequest): AtendimentoDTO {
+        val cliente = clienteService.buscarClientePeloId(atendimentoRequest.idCliente)
+        val atendimento = salvarOuAtualizarAtendimento(cliente, AtendimentoDTO(
+            idCliente = cliente.id!!,
+            analiseCredito = atendimentoRequest.analiseCredito,
+            emailCorretor = atendimentoRequest.emailCorretor
+        ))
         clienteService.atualizarStatusCliente(cliente.id!!, StatusCliente.AGUARDANDO_DISTRIBUICAO)
-        return atendimentoRepository.save(atendimento)
+        return atendimento.toDto()
     }
 
-    override fun distribuirCliente(distribuirRequest: DistribuirRequest) {
-        val cliente = clienteService.buscarClientePeloId(distribuirRequest.idCliente)
-
-        val atendimento = buscarAtendimentoPorCliente(cliente.id!!)
-        atendimento.analiseCredito = distribuirRequest.analiseCredito
-        atendimento.emailCorretor = distribuirRequest.emailCorretor
-        atualizarAtendimento(atendimento)
-
-        val conteudoTemplate = ConteudoTemplate(
-            cliente.nome,
-            cliente.telefone,
-            cliente.email,
-            cliente.dadosInteresse.tipoImovel,
-            cliente.dadosInteresse.estadoImovel,
-            atendimento.analiseCredito,
-            tokenService.generateToken(cliente)
+    override fun distribuirCliente(atendimentoRequest: AtendimentoRequest) : String{
+        val cliente = clienteService.buscarClientePeloId(atendimentoRequest.idCliente)
+        val atendimentoDTO = AtendimentoDTO(
+            idCliente = cliente.id!!,
+            analiseCredito = atendimentoRequest.analiseCredito,
+            emailCorretor = atendimentoRequest.emailCorretor
         )
 
-        emailSender.enviarEmail(conteudoTemplate, atendimento.emailCorretor)
+        val atendimento = salvarOuAtualizarAtendimento(cliente, atendimentoDTO)
+
+        val codigoGerado = enviarEmailParaCorretor(cliente, atendimento)
         clienteService.atualizarStatusCliente(cliente.id!!, StatusCliente.EM_ATENDIMENTO)
+
+        return codigoGerado
     }
 
-    override fun registrarDevolutiva(codigo: String, devolutiva: String) : Atendimento{
-        val isValid = tokenService.isTokenValid(codigo)
-
-        if (!isValid)
+    override fun registrarDevolutiva(codigo: String, devolutiva: String): Atendimento {
+        if (!tokenService.isTokenValid(codigo)) {
             throw TokenException("Token inválido")
+        }
 
-        val claims = tokenService.obterClaims(codigo)
-
-        val clienteId = claims.subject.toLong()
-
+        val clienteId = tokenService.obterClaims(codigo).subject.toLong()
         val cliente = clienteService.buscarClientePeloId(clienteId)
         val atendimento = buscarAtendimentoPorCliente(cliente.id!!)
 
-        clienteService.atualizarStatusCliente(cliente.id!!, StatusCliente.ATENDIMENTO_CONCLUIDO)
-
         atendimento.devolutiva = devolutiva
-        return atualizarAtendimento(atendimento)
-    }
-
-    override fun atualizarAtendimento(atendimento: Atendimento) : Atendimento{
-        val atendimentoExistente = atendimentoRepository.findById(atendimento.id!!)
-
-        atendimentoExistente.apply {
-            atendimento.cliente
-            atendimento.emailCorretor
-            atendimento.analiseCredito
-            atendimento.devolutiva
-        }
+        clienteService.atualizarStatusCliente(cliente.id!!, StatusCliente.ATENDIMENTO_CONCLUIDO)
 
         return atendimentoRepository.save(atendimento)
     }
 
     override fun buscarAtendimentoPorCliente(idCliente: Long): Atendimento {
-        val atendimento = atendimentoRepository.findByCliente_Id(idCliente)
+        return atendimentoRepository.findByClienteId(idCliente)
             ?: throw ClienteException("Dados de atendimento não encontrados.")
+    }
 
-        return atendimento
+    private fun salvarOuAtualizarAtendimento(cliente: Cliente, dto: AtendimentoDTO): Atendimento {
+        val atendimento = atendimentoRepository.findByClienteId(cliente.id!!)?.apply {
+            analiseCredito = dto.analiseCredito
+            emailCorretor = dto.emailCorretor
+        } ?: Atendimento(
+            cliente = cliente,
+            analiseCredito = dto.analiseCredito,
+            emailCorretor = dto.emailCorretor
+        )
+
+        return atendimentoRepository.save(atendimento)
+    }
+
+    private fun enviarEmailParaCorretor(cliente: Cliente, atendimento: Atendimento) : String{
+        val codigo = tokenService.generateToken(cliente)
+
+        val conteudo = ConteudoTemplate(
+            clienteNome = cliente.nome,
+            telefone = cliente.telefone,
+            email = cliente.email,
+            interesseImovel = cliente.dadosInteresse.tipoImovel,
+            estadoImovel = cliente.dadosInteresse.estadoImovel,
+            analiseCredito = atendimento.analiseCredito,
+            codigoDevolutiva = codigo
+        )
+
+        emailSender.enviarEmail(conteudo, atendimento.emailCorretor)
+        return codigo
     }
 }
