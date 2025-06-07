@@ -3,8 +3,6 @@ package edu.fatec.jvproject.aprovafacil.dto
 import edu.fatec.jvproject.aprovafacil.enum.EstadoCivil
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.enum.TipoDocumento
-import edu.fatec.jvproject.aprovafacil.model.DadosInteresse
-import edu.fatec.jvproject.aprovafacil.model.DocumentoCliente
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
@@ -46,5 +44,4 @@ data class ClienteDto(
 
     val documentos: Map<TipoDocumento, String> = emptyMap(),
 
-    val documentosSalvos: List<DocumentoClienteDto> = emptyList()
-)
+    )
