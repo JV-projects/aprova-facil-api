@@ -11,6 +11,8 @@ import edu.fatec.jvproject.aprovafacil.model.Cliente
 import edu.fatec.jvproject.aprovafacil.repository.IClienteRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.Period
 
 @Service
 class ClienteService(
@@ -20,6 +22,8 @@ class ClienteService(
 
     @Transactional
     override fun salvarClienteComInformacoes(clienteDto: ClienteDto): Cliente {
+
+        validarMaioridade(clienteDto)
 
         val clienteEncontrado = clienteRepository.findByCpf(clienteDto.cpf)
         if (clienteEncontrado != null)
@@ -69,8 +73,9 @@ class ClienteService(
         }
 
         val clienteEncontrado = clienteRepository.findByCpf(clienteDto.cpf)
-        if (clienteEncontrado != null)
-            throw ClienteException("CPF ${clienteDto.cpf} já cadastrado")
+        if (clienteEncontrado != null && clienteEncontrado.id != clienteDto.id) {
+            throw ClienteException("CPF ${clienteDto.cpf} já cadastrado.")
+        }
 
         val clienteExistente = clienteRepository.findById(clienteDto.id)
             .orElseThrow { ClienteNaoEncontradoException("Cliente com ID ${clienteDto.id} não encontrado.") }
@@ -115,5 +120,15 @@ class ClienteService(
             .orElseThrow { ClienteNaoEncontradoException("Cliente não encontrado para exclusão") }
 
         clienteRepository.delete(cliente)
+    }
+
+    private fun validarMaioridade(clienteDto: ClienteDto) {
+        val hoje = LocalDate.now()
+        val dataNascimento = clienteDto.dataNascimento
+        val idade = Period.between(dataNascimento, hoje).years
+
+        if (idade <= 18) {
+            throw ClienteException("Cliente deve ter pelo menos 18 anos. Idade atual: $idade")
+        }
     }
 }

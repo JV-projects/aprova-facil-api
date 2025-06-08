@@ -71,7 +71,7 @@ class DocumentoService(
     ): String {
 
         val baseDir = Paths.get("").toAbsolutePath().resolve("documentos")
-        val nomeArquivo = "${cliente.id}_${tipo.name.uppercase()}"
+        val nomeArquivo = "${cliente.id}_${tipo.name.uppercase()}.pdf"
         val pathDestino = baseDir.resolve(nomeArquivo)
 
         Files.createDirectories(baseDir)
@@ -126,29 +126,29 @@ class DocumentoService(
         if (!documento.containsKey(TipoDocumento.RG))
             throw DocumentoException("O RG é um documento obrigatório")
 
-        if (!documento.containsKey(TipoDocumento.CPF))
-            throw DocumentoException("O CPF é um documento obrigatório")
-
-        if (!documento.containsKey(TipoDocumento.CERTIDAO))
-            throw DocumentoException("A Certidão de estado civíl ou de nascimento é um documento obrigatório.")
-
-        if (!documento.containsKey(TipoDocumento.COMPROVANTE_RESIDENCIA))
-            throw DocumentoException("O comprovante de residência é um documento obrigatório.")
-
-        if (!documento.containsKey(TipoDocumento.PIS_CARTAO_CIDADAO))
-            throw DocumentoException("O PIS ou Cartão do Cidadão é um documento obrigatório.")
-
-        if (!documento.containsKey(TipoDocumento.HOLERITE))
-            throw DocumentoException("O Holer// Retorna o tamanho do array de bytesite é um documento obrigatório.")
-
-        if (!documento.containsKey(TipoDocumento.CARTEIRA_TRABALHO))
-            throw DocumentoException("O Holerite é um documento obrigatório.")
-
-        if (!documento.containsKey(TipoDocumento.EXTRATO_FGTS))
-            throw DocumentoException("O Extrato de FGTS é um documento obrigatório.")
-
-        if (!documento.containsKey(TipoDocumento.DECLARACAO_IR))
-            throw DocumentoException("A declaração de imposto de renda é um documento obrigatório.")
+//        if (!documento.containsKey(TipoDocumento.CPF))
+//            throw DocumentoException("O CPF é um documento obrigatório")
+//
+//        if (!documento.containsKey(TipoDocumento.CERTIDAO))
+//            throw DocumentoException("A Certidão de estado civíl ou de nascimento é um documento obrigatório.")
+//
+//        if (!documento.containsKey(TipoDocumento.COMPROVANTE_RESIDENCIA))
+//            throw DocumentoException("O comprovante de residência é um documento obrigatório.")
+//
+//        if (!documento.containsKey(TipoDocumento.PIS_CARTAO_CIDADAO))
+//            throw DocumentoException("O PIS ou Cartão do Cidadão é um documento obrigatório.")
+//
+//        if (!documento.containsKey(TipoDocumento.HOLERITE))
+//            throw DocumentoException("O Holer// Retorna o tamanho do array de bytesite é um documento obrigatório.")
+//
+//        if (!documento.containsKey(TipoDocumento.CARTEIRA_TRABALHO))
+//            throw DocumentoException("O Holerite é um documento obrigatório.")
+//
+//        if (!documento.containsKey(TipoDocumento.EXTRATO_FGTS))
+//            throw DocumentoException("O Extrato de FGTS é um documento obrigatório.")
+//
+//        if (!documento.containsKey(TipoDocumento.DECLARACAO_IR))
+//            throw DocumentoException("A declaração de imposto de renda é um documento obrigatório.")
     }
 
     fun createMultipartFileFromBytes(bytes: ByteArray, name: String, originalFilename: String): MultipartFile {
