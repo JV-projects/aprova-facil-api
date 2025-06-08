@@ -10,10 +10,10 @@ interface IDocumentoService {
      * Processa o Map de documentos em base64
      */
     fun processarDocumentosBase64(documentos: Map<TipoDocumento, String>, cliente: Cliente) : List<DocumentoCliente>
-    /**
-     * Processa o Map de documentos enviado
-     */
-    fun processarMapDocumentos(documentos: Map<TipoDocumento, MultipartFile>, clienteId: Long)
+    /*
+    * Processa documento para atualização
+    * */
+    fun processarDocumentosParaAtualizacao(documentos: Map<TipoDocumento, String>, cliente: Cliente): List<DocumentoCliente>
     /**
      * Armazenar o documento de arquivos do servidor
      */

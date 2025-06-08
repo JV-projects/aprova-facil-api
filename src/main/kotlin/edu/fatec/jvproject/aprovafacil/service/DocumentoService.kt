@@ -6,6 +6,7 @@ import edu.fatec.jvproject.aprovafacil.model.Cliente
 import edu.fatec.jvproject.aprovafacil.model.DocumentoCliente
 import edu.fatec.jvproject.aprovafacil.repository.IClienteRepository
 import edu.fatec.jvproject.aprovafacil.repository.IDocumentoClienteRepository
+import edu.fatec.jvproject.aprovafacil.utils.startsWithPdf
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.ByteArrayInputStream
@@ -28,7 +29,7 @@ class DocumentoService(
         var documentosSalvos = mutableListOf<DocumentoCliente>()
         documentos.forEach { (tipo, base64String) ->
             val bytes = Base64.getDecoder().decode(base64String)
-            if (!isPdf(bytes)) {
+            if (!bytes.startsWithPdf()) {
                 throw DocumentoException("Tipo de documento inválido para $tipo. Apenas PDFs são permitidos.")
             }
             val tempMultipartFile: MultipartFile = createMultipartFileFromBytes(bytes, "documento", tipo.name.lowercase() + ".pdf") // Add appropriate filename/extension
@@ -47,21 +48,41 @@ class DocumentoService(
         return documentosSalvos
     }
 
-    override fun processarMapDocumentos(documentos: Map<TipoDocumento, MultipartFile>, clienteId: Long) {
-        val cliente = clienteRepository.findById(clienteId)
-            .orElseThrow { RuntimeException("Cliente não encontrado") }
+    override fun processarDocumentosParaAtualizacao(
+        documentos: Map<TipoDocumento, String>,
+        cliente: Cliente
+    ): List<DocumentoCliente> {
+        val documentosProcessados = documentos.mapNotNull { (tipo, base64String) ->
+            if (base64String.isBlank()) {
+                return@mapNotNull null
+            }
 
-        documentos.forEach { (tipo, arquivo) ->
-            val arquivoArmazenado = armazenarDocumento(arquivo, tipo, cliente)
-            val nomeArquivo = Paths.get(arquivoArmazenado).fileName.toString()
-            registrarDocumento(
-                DocumentoCliente(
-                    nomeArquivo,
-                    tipo,
-                    cliente
-                )
+            val bytes = try {
+                Base64.getDecoder().decode(base64String)
+            } catch (_: IllegalArgumentException) {
+                return@mapNotNull null
+            }
+
+            if (bytes.isEmpty() || bytes.all { it == 0.toByte() }) {
+                return@mapNotNull null
+            }
+
+            if (!bytes.startsWithPdf()) {
+                throw DocumentoException("Tipo de documento inválido para $tipo. Apenas PDFs são permitidos.")
+            }
+
+            val multipart = createMultipartFileFromBytes(bytes, "documento", tipo.name.lowercase() + ".pdf")
+            val caminho = armazenarDocumento(multipart, tipo, cliente)
+
+            DocumentoCliente(
+                caminho,
+                tipo,
+                cliente
             )
         }
+
+        documentosProcessados.forEach { registrarDocumento(it) }
+        return documentosProcessados
     }
 
     override fun armazenarDocumento(
@@ -126,29 +147,29 @@ class DocumentoService(
         if (!documento.containsKey(TipoDocumento.RG))
             throw DocumentoException("O RG é um documento obrigatório")
 
-//        if (!documento.containsKey(TipoDocumento.CPF))
-//            throw DocumentoException("O CPF é um documento obrigatório")
-//
-//        if (!documento.containsKey(TipoDocumento.CERTIDAO))
-//            throw DocumentoException("A Certidão de estado civíl ou de nascimento é um documento obrigatório.")
-//
-//        if (!documento.containsKey(TipoDocumento.COMPROVANTE_RESIDENCIA))
-//            throw DocumentoException("O comprovante de residência é um documento obrigatório.")
-//
-//        if (!documento.containsKey(TipoDocumento.PIS_CARTAO_CIDADAO))
-//            throw DocumentoException("O PIS ou Cartão do Cidadão é um documento obrigatório.")
-//
-//        if (!documento.containsKey(TipoDocumento.HOLERITE))
-//            throw DocumentoException("O Holer// Retorna o tamanho do array de bytesite é um documento obrigatório.")
-//
-//        if (!documento.containsKey(TipoDocumento.CARTEIRA_TRABALHO))
-//            throw DocumentoException("O Holerite é um documento obrigatório.")
-//
-//        if (!documento.containsKey(TipoDocumento.EXTRATO_FGTS))
-//            throw DocumentoException("O Extrato de FGTS é um documento obrigatório.")
-//
-//        if (!documento.containsKey(TipoDocumento.DECLARACAO_IR))
-//            throw DocumentoException("A declaração de imposto de renda é um documento obrigatório.")
+        if (!documento.containsKey(TipoDocumento.CPF))
+            throw DocumentoException("O CPF é um documento obrigatório")
+
+        if (!documento.containsKey(TipoDocumento.CERTIDAO))
+            throw DocumentoException("A Certidão de estado civíl ou de nascimento é um documento obrigatório.")
+
+        if (!documento.containsKey(TipoDocumento.COMPROVANTE_RESIDENCIA))
+            throw DocumentoException("O comprovante de residência é um documento obrigatório.")
+
+        if (!documento.containsKey(TipoDocumento.PIS_CARTAO_CIDADAO))
+            throw DocumentoException("O PIS ou Cartão do Cidadão é um documento obrigatório.")
+
+        if (!documento.containsKey(TipoDocumento.HOLERITE))
+            throw DocumentoException("O Holerite Retorna o tamanho do array de bytesite é um documento obrigatório.")
+
+        if (!documento.containsKey(TipoDocumento.CARTEIRA_TRABALHO))
+            throw DocumentoException("A carteira de trabalho é um documento obrigatório.")
+
+        if (!documento.containsKey(TipoDocumento.EXTRATO_FGTS))
+            throw DocumentoException("O Extrato de FGTS é um documento obrigatório.")
+
+        if (!documento.containsKey(TipoDocumento.DECLARACAO_IR))
+            throw DocumentoException("A declaração de imposto de renda é um documento obrigatório.")
     }
 
     fun createMultipartFileFromBytes(bytes: ByteArray, name: String, originalFilename: String): MultipartFile {
@@ -169,15 +190,6 @@ class DocumentoService(
                 FileOutputStream(dest).use { it.write(bytes) }
             }
         }
-    }
-
-    fun isPdf(bytes: ByteArray): Boolean {
-        return bytes.startsWith(byteArrayOf(0x25, 0x50, 0x44, 0x46))
-    }
-
-    fun ByteArray.startsWith(prefix: ByteArray): Boolean {
-        if (this.size < prefix.size) return false
-        return this.sliceArray(0 until prefix.size).contentEquals(prefix)
     }
 
 }

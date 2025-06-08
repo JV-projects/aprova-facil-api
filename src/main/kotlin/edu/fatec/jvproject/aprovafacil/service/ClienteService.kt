@@ -103,12 +103,17 @@ class ClienteService(
 
         verificarExistenciaParticipante(clienteDto, clienteExistente)
 
+        if (clienteDto.documentos.isNotEmpty()) {
+            val documentosAtualizados = documentoService.processarDocumentosParaAtualizacao(clienteDto.documentos, clienteExistente)
 
-        if (!clienteDto.documentos.isEmpty()){
-            val documentos = documentoService.processarDocumentosBase64(clienteDto.documentos, clienteExistente)
+            val mapaDocumentosExistentes = clienteExistente.registroDocumentos.associateBy { it.tipoDocumento }.toMutableMap()
+
+            documentosAtualizados.forEach { novoDoc ->
+                mapaDocumentosExistentes[novoDoc.tipoDocumento] = novoDoc
+            }
 
             clienteExistente.registroDocumentos.clear()
-            clienteExistente.registroDocumentos.addAll(documentos)
+            clienteExistente.registroDocumentos.addAll(mapaDocumentosExistentes.values)
         }
 
         return clienteRepository.save(clienteExistente)
