@@ -12,24 +12,24 @@ import java.time.LocalDate
 
 data class ClienteDto(
     val id: Long? = null,
-    @field:NotBlank(message = "Informe o 'nome'.")
+    @field:NotBlank(message = "Informe o 'nome'")
     val nome: String,
 
-    @field:NotBlank(message = "Informe o 'cpf'.")
+    @field:NotBlank(message = "Informe o 'cpf'")
     val cpf: String,
 
-    @field:NotBlank(message = "Informe o 'telefone'.")
+    @field:NotBlank(message = "Informe o 'telefone'")
     val telefone: String,
 
-    @field:NotBlank(message = "Informe o 'email'.")
-    @field:Email(message = "O 'email' está com formato inválido.")
+    @field:NotBlank(message = "Informe o 'email'")
+    @field:Email(message = "O 'email' está com formato inválido")
     val email: String,
 
     val status: StatusCliente? = null,
     val estadoCivil: EstadoCivil,
 
-    @field:NotNull(message = "A 'data de nascimento' é obrigatória.")
-    @field:Past(message = "Não é possível inserir uma 'data de nascimento' no futuro.")
+    @field:NotNull(message = "A 'data de nascimento' é obrigatória")
+    @field:Past(message = "Não é possível inserir uma 'data de nascimento' no futuro")
     val dataNascimento: LocalDate,
 
     @field:Valid

@@ -31,11 +31,7 @@ class ClienteService(
 
         val clienteASerSalvo = ClienteMapper().to(clienteDto)
 
-        clienteDto.participante?.let { cpfParticipante ->
-            val participante = clienteRepository.findByCpf(cpfParticipante)
-                ?: throw ClienteException("Participante não encontrado para o CPF $cpfParticipante")
-            clienteASerSalvo.participante = participante
-        }
+        verificarExistenciaParticipante(clienteDto, clienteASerSalvo)
 
         if (clienteDto.documentos.isEmpty())
             throw DocumentoException("Nenhum documento foi enviado")
@@ -47,6 +43,21 @@ class ClienteService(
         clienteSalvo.registroDocumentos.addAll(documentos)
 
         return clienteSalvo
+    }
+
+    private fun verificarExistenciaParticipante(
+        clienteDto: ClienteDto,
+        cliente: Cliente
+    ) {
+        val cpfParticipante = clienteDto.participante
+
+        if (cpfParticipante.isNullOrBlank()) {
+            cliente.participante = null
+        } else {
+            val participante = clienteRepository.findByCpf(cpfParticipante)
+                ?: throw ClienteException("Participante não encontrado para o CPF $cpfParticipante")
+            cliente.participante = participante
+        }
     }
 
     override fun buscarClientePeloCpf(cpf: String): Cliente {
@@ -90,11 +101,8 @@ class ClienteService(
             dadosInteresse = clienteDto.dadosInteresse.toEntity()
         }
 
-        clienteDto.participante?.let { cpfParticipante ->
-            val participante = clienteRepository.findByCpf(cpfParticipante)
-                ?: throw ClienteException("Participante não encontrado para o CPF $cpfParticipante")
-            clienteExistente.participante = participante
-        }
+        verificarExistenciaParticipante(clienteDto, clienteExistente)
+
 
         if (!clienteDto.documentos.isEmpty()){
             val documentos = documentoService.processarDocumentosBase64(clienteDto.documentos, clienteExistente)

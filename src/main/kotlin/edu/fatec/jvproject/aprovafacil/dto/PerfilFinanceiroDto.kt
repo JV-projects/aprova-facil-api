@@ -6,11 +6,11 @@ import jakarta.validation.constraints.Positive
 
 data class PerfilFinanceiroDto(
 
-    @field:NotNull(message = "Informe a 'renda bruta'.")
-    @field:Positive(message = "A 'renda bruta' deve ser maior que zero.")
+    @field:NotNull(message = "Informe a 'renda bruta'")
+    @field:Positive(message = "A 'renda bruta' deve ser maior que zero")
     var rendaBruta: Double,
 
-    @field:NotNull(message = "Informe o 'tipo de renda'.")
+    @field:NotNull(message = "Informe o 'tipo de renda'")
     var tipoRenda: TipoRenda,
 
     var possuiRestricao: Boolean? = false,

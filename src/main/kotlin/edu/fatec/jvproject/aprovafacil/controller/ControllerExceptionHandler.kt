@@ -6,6 +6,7 @@ import edu.fatec.jvproject.aprovafacil.exceptions.ClienteNaoEncontradoException
 import edu.fatec.jvproject.aprovafacil.exceptions.DocumentoException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestController
@@ -62,6 +63,23 @@ class ControllerExceptionHandler {
 
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
+            .body(erro)
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationException(e: MethodArgumentNotValidException): ResponseEntity<ErroResponseEntity> {
+        val mensagens = e.bindingResult.fieldErrors.joinToString("; ") {
+            "${it.defaultMessage}"
+        }
+
+        val erro = ErroResponseEntity(
+            timestamp = LocalDateTime.now().withNano(0),
+            status = HttpStatus.BAD_REQUEST.value(),
+            mensagem = mensagens
+        )
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
             .body(erro)
     }
 }

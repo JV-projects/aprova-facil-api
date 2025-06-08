@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotNull
 
 data class DadosInteresseDto(
 
-    @field:NotNull(message = "Informe o 'tipo de imóvel'.")
+    @field:NotNull(message = "Informe o 'tipo de imóvel'")
     val tipoImovel: TipoImovel,
     
-    @field:NotNull(message = "Informe o 'estado do imóvel'.")
+    @field:NotNull(message = "Informe o 'estado do imóvel'")
     val estadoImovel: EstadoImovel
 )
