@@ -5,15 +5,18 @@ import edu.fatec.jvproject.aprovafacil.enum.EstadoImovel
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.enum.TipoImovel
 import edu.fatec.jvproject.aprovafacil.enum.TipoRenda
+import edu.fatec.jvproject.aprovafacil.model.Administrador
 import edu.fatec.jvproject.aprovafacil.model.Atendimento
 import edu.fatec.jvproject.aprovafacil.model.Cliente
 import edu.fatec.jvproject.aprovafacil.model.DadosInteresse
 import edu.fatec.jvproject.aprovafacil.model.PerfilFinanceiro
+import edu.fatec.jvproject.aprovafacil.repository.IAdministradorRepository
 import edu.fatec.jvproject.aprovafacil.repository.IAtendimentoRepository
 import edu.fatec.jvproject.aprovafacil.repository.IClienteRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.LocalDate
 
 @Configuration
@@ -22,9 +25,19 @@ import java.time.LocalDate
      @Bean
      fun initDatabase(
          clienteRepository: IClienteRepository,
-         atendimentoRepository: IAtendimentoRepository
+         atendimentoRepository: IAtendimentoRepository,
+         administradorRepository: IAdministradorRepository,
+         passwordEncoder: PasswordEncoder
      ) : CommandLineRunner {
          return CommandLineRunner {
+
+             var adm = Administrador(
+                 nome = "Administrador",
+                 email = "adm@gmail.com",
+                 senha = passwordEncoder.encode("123"),
+             )
+
+             administradorRepository.save(adm)
 
              var cliente = Cliente(
                  nome = "Moisés",
