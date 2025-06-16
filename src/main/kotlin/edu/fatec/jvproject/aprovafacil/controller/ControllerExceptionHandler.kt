@@ -4,6 +4,7 @@ import edu.fatec.jvproject.aprovafacil.dto.ErroResponseEntity
 import edu.fatec.jvproject.aprovafacil.exceptions.ClienteException
 import edu.fatec.jvproject.aprovafacil.exceptions.ClienteNaoEncontradoException
 import edu.fatec.jvproject.aprovafacil.exceptions.DocumentoException
+import edu.fatec.jvproject.aprovafacil.exceptions.TokenException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -55,6 +56,19 @@ class ControllerExceptionHandler {
 
     @ExceptionHandler(ClienteNaoEncontradoException::class)
     fun handleBadRequest(e: ClienteNaoEncontradoException): ResponseEntity<ErroResponseEntity> {
+        var erro = ErroResponseEntity(
+            timestamp = LocalDateTime.now().withNano(0),
+            status = HttpStatus.NOT_FOUND.value(),
+            mensagem = e.message ?: "Erro interno no servidor"
+        )
+
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(erro)
+    }
+
+    @ExceptionHandler(TokenException::class)
+    fun handleTokenException(e: TokenException): ResponseEntity<ErroResponseEntity>{
         var erro = ErroResponseEntity(
             timestamp = LocalDateTime.now().withNano(0),
             status = HttpStatus.NOT_FOUND.value(),

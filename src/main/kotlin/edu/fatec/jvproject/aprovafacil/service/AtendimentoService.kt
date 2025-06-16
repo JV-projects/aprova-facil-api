@@ -3,6 +3,8 @@ package edu.fatec.jvproject.aprovafacil.service
 import edu.fatec.jvproject.aprovafacil.dto.AtendimentoDTO
 import edu.fatec.jvproject.aprovafacil.dto.ConteudoTemplate
 import edu.fatec.jvproject.aprovafacil.dto.AtendimentoRequest
+import edu.fatec.jvproject.aprovafacil.dto.ClienteDevolutivaDTO
+import edu.fatec.jvproject.aprovafacil.dto.DevolutivaRequest
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.exceptions.ClienteException
 import edu.fatec.jvproject.aprovafacil.exceptions.TokenException
@@ -47,25 +49,39 @@ class AtendimentoService(
         return codigoGerado
     }
 
-    override fun registrarDevolutiva(codigo: String, devolutiva: String): Atendimento {
-        if (!tokenService.isTokenValid(codigo)) {
+    override fun registrarDevolutiva(devolutiva: DevolutivaRequest): Atendimento {
+
+        val atendimento = buscarAtendimentoPorCliente(devolutiva.idCliente)
+
+        atendimento.devolutiva = devolutiva.devolutiva
+        clienteService.atualizarStatusCliente(devolutiva.idCliente, StatusCliente.ATENDIMENTO_CONCLUIDO)
+
+        return atendimentoRepository.save(atendimento)
+    }
+
+    override fun verificarCodigoDevolutiva(codigoDevolutiva: String): ClienteDevolutivaDTO {
+
+        if (!tokenService.isTokenValid(codigoDevolutiva)) {
             throw TokenException("Token inválido")
         }
 
-        val clienteId = tokenService.obterClaims(codigo).subject.toLong()
+        val clienteId = tokenService.obterClaims(codigoDevolutiva).subject.toLong()
         val cliente = clienteService.buscarClientePeloId(clienteId)
-        val atendimento = buscarAtendimentoPorCliente(cliente.id!!)
 
-        atendimento.devolutiva = devolutiva
-        clienteService.atualizarStatusCliente(cliente.id!!, StatusCliente.ATENDIMENTO_CONCLUIDO)
-
-        return atendimentoRepository.save(atendimento)
+        return ClienteDevolutivaDTO(
+            id = cliente.id!!,
+            nome = cliente.nome,
+            email = cliente.email,
+            status = cliente.statusCadastro
+        )
     }
 
     override fun buscarAtendimentoPorCliente(idCliente: Long): Atendimento {
         return atendimentoRepository.findByClienteId(idCliente)
             ?: throw ClienteException("Dados de atendimento não encontrados.")
     }
+
+
 
     private fun salvarOuAtualizarAtendimento(cliente: Cliente, dto: AtendimentoDTO): Atendimento {
         val atendimento = atendimentoRepository.findByClienteId(cliente.id!!)?.apply {

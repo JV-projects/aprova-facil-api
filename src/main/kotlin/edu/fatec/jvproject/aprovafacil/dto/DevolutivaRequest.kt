@@ -1,6 +1,6 @@
 package edu.fatec.jvproject.aprovafacil.dto
 
 data class DevolutivaRequest(
-    val codigo: String,
+    val idCliente: Long,
     val devolutiva: String
 )

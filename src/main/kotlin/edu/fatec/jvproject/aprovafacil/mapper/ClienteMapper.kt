@@ -62,7 +62,7 @@ class ClienteMapper(
                 to.dadosInteresse.tipoImovel,
                 to.dadosInteresse.estadoImovel
             ),
-            participante = to.participante?.cpf,
+            participante = to.participante?.cpf ?: "",
             documentos = to.registroDocumentos.associate { docCliente ->
                 docCliente.tipoDocumento to docCliente.nomeArquivo
             },

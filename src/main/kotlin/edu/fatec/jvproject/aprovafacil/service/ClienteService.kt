@@ -138,10 +138,13 @@ class ClienteService(
     private fun validarMaioridade(clienteDto: ClienteDto) {
         val hoje = LocalDate.now()
         val dataNascimento = clienteDto.dataNascimento
-        val idade = Period.between(dataNascimento, hoje).years
 
-        if (idade <= 18) {
-            throw ClienteException("Cliente deve ter pelo menos 18 anos. Idade atual: $idade")
+        val data18Anos = dataNascimento.plusYears(18)
+
+        if (hoje.isBefore(data18Anos)) {
+            val idadeAproximada = Period.between(dataNascimento, hoje).years
+            throw ClienteException("Cliente deve ter pelo menos 18 anos. Idade atual: $idadeAproximada")
         }
     }
+
 }
