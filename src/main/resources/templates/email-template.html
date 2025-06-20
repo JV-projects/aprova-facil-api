@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dados do Cliente</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            padding: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+            background-color: white;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        td, th {
+            border: 1px solid #e0e0e0;
+            padding: 12px 16px;
+            text-align: left;
+            width: 50%;
+        }
+
+        thead td, tr:first-child td {
+            color: black;
+            font-weight: bold;
+        }
+
+        p {
+            margin: 16px 0;
+        }
+
+        .credit-box {
+            background-color: #e6f0f8;
+            padding: 16px;
+            border: 1px solid #8CB4DA;
+            border-radius: 6px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+<p>Olá corretor,</p>
+<p>Estamos destinando um novo cliente para o atendimento com você.</p>
+
+<table>
+    <tr><td colspan="2">Informações do cliente</td></tr>
+    <tr><td>Nome</td><td th:text="${conteudo.clienteNome}">---</td></tr>
+    <tr><td>Telefone</td><td th:text="${conteudo.telefone}">---</td></tr>
+    <tr><td>Email</td><td th:text="${conteudo.email}">---</td></tr>
+</table>
+
+<table>
+    <tr><td colspan="2">Dados de Interesse</td></tr>
+    <tr><td>Imóvel</td><td th:text="${conteudo.interesseImovel}">---</td></tr>
+    <tr><td>Estado do Imóvel</td><td th:text="${conteudo.estadoImovel}">---</td></tr>
+</table>
+
+<p>Retorno da análise de crédito</p>
+<div class="credit-box">
+    <p><strong th:text="${conteudo.analiseCredito}">Análise de crédto não informada.</strong></p>
+</div>
+
+<p>Código de devolutiva de atendimento</p>
+<p>(Para realizar a devolutiva, acesse o ambiente do corretor na plataforma Aprova Fácil e insira código abaixo)</p>
+<div class="credit-box">
+    <p><strong th:text="${conteudo.codigoDevolutiva}">19DHDVST463HD9SJ5</strong></p>
+</div>
+
+<p>Att. Administrador</p>
+</body>
+</html>
