@@ -1,10 +1,6 @@
 package edu.fatec.jvproject.aprovafacil.service
 
-import edu.fatec.jvproject.aprovafacil.dto.AtendimentoDTO
-import edu.fatec.jvproject.aprovafacil.dto.ConteudoTemplate
-import edu.fatec.jvproject.aprovafacil.dto.AtendimentoRequest
-import edu.fatec.jvproject.aprovafacil.dto.ClienteDevolutivaDTO
-import edu.fatec.jvproject.aprovafacil.dto.DevolutivaRequest
+import edu.fatec.jvproject.aprovafacil.dto.*
 import edu.fatec.jvproject.aprovafacil.enum.StatusCliente
 import edu.fatec.jvproject.aprovafacil.exceptions.ClienteException
 import edu.fatec.jvproject.aprovafacil.exceptions.TokenException
@@ -12,7 +8,6 @@ import edu.fatec.jvproject.aprovafacil.mapper.toDto
 import edu.fatec.jvproject.aprovafacil.model.Atendimento
 import edu.fatec.jvproject.aprovafacil.model.Cliente
 import edu.fatec.jvproject.aprovafacil.repository.IAtendimentoRepository
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
@@ -29,7 +24,7 @@ class AtendimentoService(
             analiseCredito = atendimentoRequest.analiseCredito,
             emailCorretor = atendimentoRequest.emailCorretor
         ))
-        clienteService.atualizarStatusCliente(cliente.id!!, StatusCliente.AGUARDANDO_DISTRIBUICAO)
+        clienteService.atualizarStatusCliente(cliente.id!!, StatusCliente.PENDENTE_ATENDIMENTO)
         return atendimento.toDto()
     }
 

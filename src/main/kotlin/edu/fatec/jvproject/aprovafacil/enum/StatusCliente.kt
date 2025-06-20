@@ -3,7 +3,7 @@ package edu.fatec.jvproject.aprovafacil.enum
 enum class StatusCliente {
     PENDENTE,
     AGUARDANDO_ANALISE,
-    AGUARDANDO_DISTRIBUICAO,
+    PENDENTE_ATENDIMENTO,
     EM_ATENDIMENTO,
     ATENDIMENTO_CONCLUIDO
 }
